@@ -1,11 +1,7 @@
-package com.example.cinemasearch
+package com.example.cinemasearch.network
 
-import com.example.cinemasearch.network.ApiService
-import com.example.cinemasearch.network.Cinemas
-import com.example.cinemasearch.network.Products
 import com.example.cinemasearch.util.Resource
 import javax.inject.Inject
-import kotlin.Exception
 
 class MainRepository @Inject constructor(private val apiService: ApiService) {
 

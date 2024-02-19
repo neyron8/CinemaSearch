@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,8 +16,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -38,8 +41,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -53,11 +56,11 @@ fun MainContent(
     navController: NavController,
 ) {
     val query: MutableState<String> = remember { mutableStateOf("") }
-    val result = viewModel.list1.value
+    val result = viewModel.listOfStates.value
 
     Scaffold(modifier = Modifier.fillMaxSize(),
         floatingActionButton = {
-            AddTweetButton(navController)
+            FloatingButton(navController)
         }) {
         Image(
             modifier = Modifier.fillMaxSize(),
@@ -100,13 +103,13 @@ fun MainContent(
                 ) {
                     Text(
                         modifier = Modifier.align(Alignment.Center),
-                        text = viewModel.list.value.error
+                        text = viewModel.listOfStates.value.error
                     )
                 }
             }
 
             if (result.data.isNotEmpty()) {
-                contentGrid(viewModel, navController)
+                ContentGrid(viewModel, navController)
             }
 
         }
@@ -114,13 +117,13 @@ fun MainContent(
 }
 
 @Composable
-private fun contentGrid(
+private fun ContentGrid(
     viewModel: MainViewModel,
     navController: NavController
 ) {
     LazyVerticalGrid(columns = GridCells.Fixed(2)) {
         Log.d("TAG", "MainContent: Your Token")
-        viewModel.list1.value.data.let { it ->
+        viewModel.listOfStates.value.data.let { it ->
             items(it) {
                 MainContentItem(
                     ShortInfoFilm(
@@ -138,9 +141,7 @@ private fun contentGrid(
 }
 
 @Composable
-fun CircularProgressIndicator(modifier: Modifier) {
-
-}
+fun CircularProgressIndicator(modifier: Modifier) {}
 
 @Composable
 fun MainContentItem(hit: ShortInfoFilm, navController: NavController) {
@@ -173,7 +174,7 @@ fun MainContentItem(hit: ShortInfoFilm, navController: NavController) {
 
 
 @Composable
-fun AddTweetButton(navController: NavController) {
+fun FloatingButton(navController: NavController) {
     FloatingActionButton(modifier = Modifier.size(50.dp), onClick = {
         navController.navigate("DbList")
     }) {
@@ -183,5 +184,90 @@ fun AddTweetButton(navController: NavController) {
             contentDescription = "fab",
             contentScale = ContentScale.FillBounds
         )
+    }
+}
+
+
+@SuppressLint("SuspiciousIndentation")
+@Composable
+fun FilmInfoScreen(navController: NavController, viewModel: MainViewModel = hiltViewModel()) {
+    val product =
+        navController.previousBackStackEntry?.savedStateHandle?.get<ShortInfoFilm>("Product")
+    Image(
+        modifier = Modifier.fillMaxSize(),
+        painter = painterResource(id = R.drawable.back),
+        contentDescription = "sd",
+        contentScale = ContentScale.FillBounds
+    )
+    Column(
+        modifier = Modifier
+            .padding(10.dp, 0.dp)
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        if (product != null) {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.background(Color(0xFF10141F))
+            ) {
+                product.nameEn?.let { Text(it, fontSize = 20.sp, color = Color.White) }
+                AsyncImage(
+                    model = product.posterUrl,
+                    contentDescription = "sd",
+                    alignment = Alignment.Center
+                )
+                Text("Рейтинг: " + product.rating, color = Color.White)
+                Text("Описание: " + product.description, color = Color.White)
+                Text("Длина: " + product.filmLength, color = Color.White)
+            }
+        }
+        Box(contentAlignment = Alignment.Center) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Button(onClick = {
+                    viewModel.insertProduct(product)
+                }) {
+                    Text(text = "Insert into favourites")
+                }
+                Button(onClick = {
+                    navController.popBackStack()
+                }) {
+                    Text(text = "Back")
+                }
+            }
+
+        }
+    }
+}
+
+@Composable
+fun DbFilmsList(navController: NavController, viewModel: MainViewModel = hiltViewModel()) {
+    viewModel.getAllFilmsDb()
+    Image(
+        modifier = Modifier.fillMaxSize(),
+        painter = painterResource(id = R.drawable.back),
+        contentDescription = "sd",
+        contentScale = ContentScale.FillBounds
+    )
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text("Избранное", color = Color.White, fontSize = 20.sp)
+
+        LazyVerticalGrid(columns = GridCells.Fixed(2)) {
+            Log.d("TAG", "MainContent: Your Token")
+            viewModel.dbList.value.let { it ->
+                items(it) {
+                    MainContentItem(
+                        ShortInfoFilm(
+                            it.id, it.nameEn, it.rating, it.description, it.filmLength, it.posterUrl
+                        ), navController
+                    )
+                }
+            }
+
+        }
     }
 }

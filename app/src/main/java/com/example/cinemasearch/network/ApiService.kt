@@ -12,11 +12,6 @@ interface ApiService {
     ):Products
 
     @GET("products/")
-    //@GET("/api/v2.2/films/301")
-    /*@Headers(
-        "X-API-KEY: ${Constant.KEY}",
-        "Content-Type: application/json",
-    )*/
     suspend fun getProducts(): Products
 
     @GET("films/search-by-keyword")

@@ -8,7 +8,6 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 @Entity(tableName = "products")
 data class Product(
-    //Check primary key
     @PrimaryKey val id: Int,
     val title: String,
     val description: String,

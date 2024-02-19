@@ -2,9 +2,9 @@ package com.example.cinemasearch.di
 
 import android.app.Application
 import androidx.room.Room
-import com.example.cinemasearch.MainRepository
 import com.example.cinemasearch.db.MainDb
 import com.example.cinemasearch.network.ApiService
+import com.example.cinemasearch.network.MainRepository
 import com.example.cinemasearch.util.Constants
 import dagger.Module
 import dagger.Provides

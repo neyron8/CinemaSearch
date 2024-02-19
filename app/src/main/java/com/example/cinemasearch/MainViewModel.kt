@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cinemasearch.db.MainDb
-import com.example.cinemasearch.network.Cinemas
+import com.example.cinemasearch.network.MainRepository
 import com.example.cinemasearch.network.ShortInfoFilm
 import com.example.cinemasearch.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,75 +15,25 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val mainRepository: MainRepository,
-    val mainDb: MainDb
+    private val mainDb: MainDb
 ) : ViewModel() {
 
-    val list: MutableState<MainState> = mutableStateOf(MainState())
-    val list1: MutableState<MainState> = mutableStateOf(MainState())
+    val listOfStates: MutableState<MainState> = mutableStateOf(MainState())
     val dbList = mutableStateOf(emptyList<ShortInfoFilm>())
 
-    /*
-    fun getProductsList() = viewModelScope.launch {
-        list.value = MainState(isLoading = true)
-
-        try {
-            var k = mainRepository.getProducts()
-            when (k) {
-                is Resource.Error -> {
-                    list.value = MainState(error = "Error")
-                }
-
-                is Resource.Success -> {
-                    k.data?.products?.let {
-                        list.value = MainState(data = it)
-                    }
-
-                }
-
-                else -> {}
-            }
-        } catch (e: Exception) {
-            list.value = MainState(error = "Something went wrong")
-        }
-    }
-
-    fun getProductsListQuery(query: String) = viewModelScope.launch {
-        list.value = MainState(isLoading = true)
-
-        try {
-            val k = mainRepository.getProductsQuery(query)
-            when (k) {
-                is Resource.Error -> {
-                    list.value = MainState(error = "Error")
-                }
-
-                is Resource.Success -> {
-                    k.data?.products?.let {
-                        list.value = MainState(data = it)
-                    }
-
-                }
-
-                else -> {}
-            }
-        } catch (e: Exception) {
-            list.value = MainState(error = "Something went wrong")
-        }
-    }
-*/
     fun getCinemaByName(name: String) = viewModelScope.launch {
-        list1.value = MainState(isLoading = true)
+        listOfStates.value = MainState(isLoading = true)
 
         try {
             val k = mainRepository.getCinemaByName(name)
             when (k) {
                 is Resource.Error -> {
-                    list.value = MainState(error = "Error")
+                    listOfStates.value = MainState(error = "Error")
                 }
 
                 is Resource.Success -> {
                     k.data?.let {
-                        list1.value = MainState(data = it.films)
+                        listOfStates.value = MainState(data = it.films)
                     }
 
                 }
@@ -91,12 +41,12 @@ class MainViewModel @Inject constructor(
                 else -> {}
             }
         } catch (e: Exception) {
-            list.value = MainState(error = "Something went wrong")
+            listOfStates.value = MainState(error = "Something went wrong")
         }
     }
 
-    fun getAllProducts() = viewModelScope.launch {
-        dbList.value = mainDb.dao.getAllProducts()
+    fun getAllFilmsDb() = viewModelScope.launch {
+        dbList.value = mainDb.dao.getAllFilmsDb()
     }
 
     fun insertProduct(film: ShortInfoFilm?) = viewModelScope.launch {
@@ -112,6 +62,6 @@ class MainViewModel @Inject constructor(
     }
 
     fun clearAll() {
-        list.value = MainState()
+        listOfStates.value = MainState()
     }
 }
